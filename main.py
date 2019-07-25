@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 from numba import njit, prange, stencil
 # from pprint import pprint as pp
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 df = pd.read_csv(
     '~/Downloads/EURUSD-2019-06.zip',
@@ -36,7 +37,7 @@ def assign_bar(timestamp, b):
     state[:, 5] = timestamp
     state[0][4] = timestamp[0]
     state[0][3] = np.mean(b)
-    state[0][2] = 1.e5
+    state[0][2] = 1.e4
     n = b.shape[0]
 
     for i in prange(n):
@@ -80,10 +81,21 @@ df['bar'] = pd.to_datetime(df['bar'])
 df = df.reset_index()
 df = df.set_index(['bar', 'timestamp'])
 
-# pp(df)
+ohlc = df.mid.groupby('bar').agg([
+    ('open', 'first'),
+    ('high', 'max'),
+    ('low', 'min'),
+    ('close', 'last')
+])
 
-# pp(df.groupby(by=['bar']).mean())
+fig = go.Figure(
+    data=go.Ohlc(
+        x=ohlc.index,
+        open=ohlc.open,
+        high=ohlc.high,
+        low=ohlc.low,
+        close=ohlc.close
+    )
+)
 
-df.boxplot(column=['mid'], by='bar')
-plt.xticks(rotation=45)
-plt.show()
+fig.show()
