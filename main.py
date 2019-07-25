@@ -47,7 +47,7 @@ def assign_bar(timestamp, b):
     state = np.empty((b.shape[0], 6))
     state[:, 5] = timestamp
     state[0][4] = timestamp[0]
-    state[0][3] = np.mean(b)
+    state[0][3] = np.mean(b[:100])
     state[0][2] = 1.e4
     n = b.shape[0]
 
