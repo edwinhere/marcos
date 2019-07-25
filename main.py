@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from numba import njit, prange, stencil
+from numba import njit, prange
 # from pprint import pprint as pp
 # import matplotlib.pyplot as plt
 import plotly.graph_objects as go
@@ -27,18 +27,25 @@ for year in years:
         df = df.append(frame)
 
 
-@stencil
-def tick_rule(p, lastb):
-    delta_p = p[0] - p[-1]
-    if delta_p == 0:
-        return lastb
-    else:
-        lastb = abs(delta_p) / delta_p
-        return lastb
+@njit(parallel=True)
+def tick_rule(prices):
+    n = prices.shape[0]
+    state = np.empty((n, 2))
+    state[:, 0] = prices
+
+    for i in prange(n):
+        delta_p = state[i][0] - state[i - 1][0]
+
+        if delta_p == 0:
+            state[i][1] = state[i - 1][1]
+        else:
+            state[i][1] = abs(delta_p) / delta_p
+
+    return state[:, 1]
 
 
 df['mid'] = (df.bid + df.ask) / 2.0
-df = df.assign(mid_b=tick_rule(df.mid.values, 0))
+df = df.assign(mid_b=tick_rule(df.mid.values))
 df.mid_b[0] = 1.0
 
 
