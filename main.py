@@ -5,15 +5,26 @@ from numba import njit, prange, stencil
 # import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-df = pd.read_csv(
-    '~/Downloads/EURUSD-2019-06.zip',
-    compression='zip',
-    header=None,
-    names=['pair', 'timestamp', 'bid', 'ask'],
-    usecols=['timestamp', 'bid', 'ask'],
-    parse_dates=[0],
-    index_col=0
-)
+currency = 'EURUSD'
+years = range(2019, 2020)
+months = range(5, 7)
+df = pd.DataFrame()
+
+for year in years:
+    for month in months:
+        print('~/Downloads/%s-%s-%02d.zip' % (currency, year, month))
+
+        frame = pd.read_csv(
+            '~/Downloads/%s-%s-%02d.zip' % (currency, year, month),
+            compression='zip',
+            header=None,
+            names=['pair', 'timestamp', 'bid', 'ask'],
+            usecols=['timestamp', 'bid', 'ask'],
+            parse_dates=[0],
+            index_col=0
+        )
+
+        df = df.append(frame)
 
 
 @stencil
