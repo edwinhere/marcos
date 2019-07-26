@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 
 currency = 'EURUSD'
 years = range(2019, 2020)
-months = range(5, 7)
+months = range(4, 7)
 df = pd.DataFrame()
 
 for year in years:
